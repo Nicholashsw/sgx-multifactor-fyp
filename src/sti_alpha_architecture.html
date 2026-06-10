@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>STI-Alpha · Quant Fund Architecture Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a1628;
+    --ink-2:#13243d;
+    --paper:#f4f1e8;
+    --paper-2:#ebe6d7;
+    --teal:#1b7f79;
+    --teal-dk:#0f5552;
+    --amber:#d97a2c;
+    --amber-2:#b85a18;
+    --red:#a83232;
+    --muted:#6b7280;
+    --muted-2:#9ca3af;
+    --line:#d4cfc0;
+    --grid:rgba(13,40,75,0.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(circle at 12% 8%, rgba(27,127,121,0.08) 0%, transparent 45%),
+      radial-gradient(circle at 88% 92%, rgba(217,122,44,0.07) 0%, transparent 50%),
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      var(--paper);
+    background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+  }
+  .wrap{max-width:1500px;margin:0 auto;padding:60px 40px 120px}
+
+  /* ── HEADER ─────────────────────────────────── */
+  .hdr{display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;padding-bottom:28px;border-bottom:1.5px solid var(--ink);margin-bottom:48px}
+  .badge{display:inline-block;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;background:var(--ink);color:var(--paper);margin-bottom:18px}
+  h1{font-family:'Fraunces',serif;font-weight:900;font-size:84px;line-height:0.92;letter-spacing:-0.045em;margin-bottom:14px;font-variation-settings:'opsz' 144}
+  h1 em{font-style:italic;font-weight:400;color:var(--teal);font-variation-settings:'opsz' 144}
+  .sub{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:22px;color:var(--ink-2);max-width:780px;font-variation-settings:'opsz' 24}
+  .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:right;line-height:1.9}
+  .meta b{color:var(--ink);font-weight:700}
+
+  /* ── FRAMING NOTE ───────────────────────────── */
+  .framing{background:linear-gradient(180deg,#fff 0%,var(--paper-2) 100%);border:1px solid var(--ink);padding:32px 40px;margin-bottom:64px;position:relative;box-shadow:6px 6px 0 var(--ink)}
+  .framing::before{content:"⚠ READ FIRST";position:absolute;top:-13px;left:32px;background:var(--ink);color:var(--paper);padding:5px 14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.15em;font-weight:700}
+  .framing h3{font-family:'Fraunces',serif;font-weight:700;font-size:24px;margin-bottom:12px;letter-spacing:-0.01em}
+  .framing p{font-size:15px;color:var(--ink-2);max-width:1100px}
+  .framing p+p{margin-top:10px}
+
+  /* ── SECTION HEADINGS ───────────────────────── */
+  .section{margin-bottom:80px}
+  .section-num{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.2em;color:var(--teal);font-weight:700;margin-bottom:8px}
+  h2{font-family:'Fraunces',serif;font-weight:700;font-size:42px;line-height:1;letter-spacing:-0.03em;margin-bottom:14px}
+  h2 em{font-style:italic;font-weight:400;color:var(--amber)}
+  .lead{font-family:'Fraunces',serif;font-size:18px;color:var(--ink-2);max-width:920px;margin-bottom:40px;font-style:italic}
+
+  /* ── LAYER STACK (the big diagram) ──────────── */
+  .stack{display:flex;flex-direction:column;gap:0;border:1.5px solid var(--ink);background:#fff;box-shadow:8px 8px 0 var(--ink)}
+  .layer{display:grid;grid-template-columns:200px 1fr;border-bottom:1.5px solid var(--ink);min-height:170px}
+  .layer:last-child{border-bottom:none}
+  .layer-side{background:var(--ink);color:var(--paper);padding:24px 22px;display:flex;flex-direction:column;justify-content:space-between;border-right:1.5px solid var(--ink)}
+  .layer-side .lnum{font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:700;line-height:1;color:var(--teal)}
+  .layer-side .lname{font-family:'Fraunces',serif;font-weight:700;font-size:22px;line-height:1.05;letter-spacing:-0.01em;margin-top:14px}
+  .layer-side .ldesc{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted-2);letter-spacing:0.08em;text-transform:uppercase;line-height:1.5;margin-top:10px}
+  .layer-modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0}
+  .mod{padding:22px 22px;border-right:1px dashed var(--line);position:relative;transition:background 0.15s ease;cursor:pointer}
+  .mod:last-child{border-right:none}
+  .mod:hover{background:var(--paper-2)}
+  .mod.active-mvp::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)}
+  .mod.future::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--amber)}
+  .mod.research::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--muted-2)}
+  .mod-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;font-weight:700;text-transform:uppercase;display:inline-block;padding:2px 7px;margin-bottom:10px}
+  .mod-tag.mvp{background:var(--teal);color:#fff}
+  .mod-tag.future{background:var(--amber);color:#fff}
+  .mod-tag.research{background:var(--muted-2);color:#fff}
+  .mod-name{font-family:'Fraunces',serif;font-weight:700;font-size:16px;margin-bottom:6px;letter-spacing:-0.01em;line-height:1.15}
+  .mod-desc{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+  .mod-meta{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:10px;letter-spacing:0.05em}
+
+  /* ── KEY ────────────────────────────────────── */
+  .key{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:32px;padding:14px 20px;background:#fff;border:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:11px}
+  .key-item{display:flex;align-items:center;gap:10px}
+  .key-dot{width:14px;height:14px;border-radius:2px}
+  .key-dot.mvp{background:var(--teal)}
+  .key-dot.future{background:var(--amber)}
+  .key-dot.research{background:var(--muted-2)}
+
+  /* ── DATA FLOW DIAGRAM ──────────────────────── */
+  .flow{margin-top:0;background:#fff;border:1.5px solid var(--ink);padding:48px 32px;box-shadow:8px 8px 0 var(--ink)}
+  .flow svg{width:100%;height:auto;display:block}
+
+  /* ── TIMELINE ───────────────────────────────── */
+  .timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1.5px solid var(--ink);background:#fff;box-shadow:8px 8px 0 var(--ink)}
+  .phase{padding:28px 22px;border-right:1.5px solid var(--ink);position:relative}
+  .phase:last-child{border-right:none}
+  .phase-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.15em;font-weight:700;margin-bottom:6px}
+  .phase-yr{font-family:'Fraunces',serif;font-size:32px;font-weight:900;line-height:1;letter-spacing:-0.03em}
+  .phase-name{font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--teal-dk);margin:8px 0 16px;font-weight:600}
+  .phase-list{list-style:none;font-size:12px;color:var(--ink-2);line-height:1.55}
+  .phase-list li{padding:5px 0 5px 14px;border-bottom:1px dashed var(--line);position:relative}
+  .phase-list li:last-child{border-bottom:none}
+  .phase-list li::before{content:"›";position:absolute;left:0;color:var(--teal);font-weight:700}
+  .phase.now{background:var(--paper-2)}
+  .phase.now::after{content:"YOU ARE HERE";position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.18em;font-weight:700;white-space:nowrap}
+
+  /* ── LINKAGE TABLE ──────────────────────────── */
+  .links{background:#fff;border:1.5px solid var(--ink);box-shadow:8px 8px 0 var(--ink);overflow:hidden}
+  .links table{width:100%;border-collapse:collapse;font-size:13px}
+  .links th{background:var(--ink);color:var(--paper);text-align:left;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;font-weight:700;text-transform:uppercase}
+  .links td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  .links tr:last-child td{border-bottom:none}
+  .links tr:nth-child(even){background:var(--paper-2)}
+  .links td.from{font-family:'Fraunces',serif;font-weight:700;font-size:14px;color:var(--teal-dk)}
+  .links td.to{font-family:'Fraunces',serif;font-weight:700;font-size:14px;color:var(--amber-2)}
+  .links td.via{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-2);background:rgba(13,40,75,0.04)}
+  .links td.purpose{color:var(--ink-2);line-height:1.45}
+
+  /* ── DECISION GATES ─────────────────────────── */
+  .gates{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+  .gate{background:#fff;border:1.5px solid var(--ink);padding:24px;box-shadow:5px 5px 0 var(--ink);position:relative}
+  .gate-num{font-family:'JetBrains Mono',monospace;font-size:48px;font-weight:700;color:var(--teal);line-height:1;margin-bottom:6px}
+  .gate-trigger{font-family:'Fraunces',serif;font-weight:700;font-size:18px;line-height:1.2;margin-bottom:10px;letter-spacing:-0.01em}
+  .gate-q{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-bottom:10px}
+  .gate-action{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--ink);color:var(--paper);padding:8px 12px;letter-spacing:0.05em}
+
+  /* ── FOOTER ─────────────────────────────────── */
+  .ftr{margin-top:80px;padding-top:32px;border-top:1.5px solid var(--ink);display:grid;grid-template-columns:1fr 1fr;gap:32px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+  .ftr h4{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--ink);margin-bottom:8px;letter-spacing:-0.01em;font-style:normal}
+  .ftr p{line-height:1.7}
+
+  /* responsive squeeze */
+  @media (max-width:1100px){
+    h1{font-size:56px}
+    .layer{grid-template-columns:160px 1fr}
+    .timeline{grid-template-columns:1fr 1fr}
+    .gates{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ───────── HEADER ───────── -->
+  <header class="hdr">
+    <div>
+      <div class="badge">Internal · Vision Document · v0.2</div>
+      <h1>The <em>Architecture</em><br>of an Ambition</h1>
+      <p class="sub">A layered map of every arm, overlay, and signal-source you've sketched — separating today's MVP (the FYP) from the multi-decade vision. Built so the modules can ship one at a time but plug together cleanly.</p>
+    </div>
+    <div class="meta">
+      <b>NICHOLAS HONG</b><br>
+      MAY 2026<br>
+      ─────────────<br>
+      11 LAYERS · 38 MODULES<br>
+      3 PHASES · 5 GATES
+    </div>
+  </header>
+
+  <!-- ───────── FRAMING ───────── -->
+  <div class="framing">
+    <h3>The map is everything. The build order is the map's purpose.</h3>
+    <p>You wanted to see how it all fits — factor models, risk overlays, regime detection, ML, vol surfaces, IO linkages, options, attribution, execution, alt-data, the lot. Here it is. Eleven layers, thirty-eight modules. <b>The teal modules are MVP-tier and ship first; amber are Year 2-3 expansions; grey are research/future-optionality and may never ship.</b></p>
+    <p>The architecture's job is twofold: (a) make every module's inputs and outputs explicit so any one can be built, swapped, or removed without breaking the others, and (b) make the build order visible so you don't accidentally try to ship Year 5 in Year 1 — the canonical failure mode of ambitious quant founders.</p>
+  </div>
+
+  <!-- ───────── 1. THE STACK ───────── -->
+  <section class="section">
+    <div class="section-num">01 · LAYERED VIEW</div>
+    <h2>The Eleven-Layer <em>Stack</em></h2>
+    <p class="lead">Read top-to-bottom: data flows down, signals propagate up, capital deploys at the bottom, results report at the top. Every layer has an interface; every module within a layer is interchangeable.</p>
+
+    <div class="key">
+      <div class="key-item"><div class="key-dot mvp"></div>MVP / FYP scope · ship in 2026-27</div>
+      <div class="key-item"><div class="key-dot future"></div>Phase 2 expansion · 2027-29</div>
+      <div class="key-item"><div class="key-dot research"></div>Research / future-optionality · maybe never</div>
+    </div>
+
+    <div class="stack">
+
+      <!-- Layer 11: Reporting -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">11</div>
+            <div class="lname">Reporting & Investor Relations</div>
+            <div class="ldesc">Outbound · audit · attribution</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Brinson-Fachler Attribution</div>
+            <div class="mod-desc">Allocation vs selection effects per sector. Carino smoothing for multi-period linking.</div>
+            <div class="mod-meta">FYP-MOD-5 · classical</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Factor-Based Attribution</div>
+            <div class="mod-desc">Decompose returns into factor exposures × factor returns + specific. Industry standard for hedge fund LPs.</div>
+            <div class="mod-meta">requires Layer 6 risk model</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Investor Tearsheets / Audit Pack</div>
+            <div class="mod-desc">Monthly LP letter, GIPS-compliant performance presentation, independent NAV verification.</div>
+            <div class="mod-meta">when AUM > $10m external</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Live Dashboard</div>
+            <div class="mod-desc">Power BI / Streamlit, intraday P&L, factor exposures, risk usage, breach monitoring.</div>
+            <div class="mod-meta">extends iPhone home screen workflow</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 10: Execution -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">10</div>
+            <div class="lname">Execution & Microstructure</div>
+            <div class="ldesc">From paper trade to filled order</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">IBKR Paper Trading</div>
+            <div class="mod-desc">Existing IBKR API code, signals → market orders, monthly rebal cadence. OOS validation.</div>
+            <div class="mod-meta">live by Q4 2026</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Almgren-Chriss Cost Model</div>
+            <div class="mod-desc">Sqrt impact + permanent + commission. Capacity analysis. Execution scheduling.</div>
+            <div class="mod-meta">FYP extension</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">VWAP / TWAP Schedulers</div>
+            <div class="mod-desc">Slice parent orders by volume profile. Reduce impact for larger AUM.</div>
+            <div class="mod-meta">when AUM > $5m</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">C++ Low-Latency Engine</div>
+            <div class="mod-desc">Your existing market-making engine. Order book replay, inventory-aware MM.</div>
+            <div class="mod-meta">separate execution alpha arm</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 9: Portfolio Construction -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">09</div>
+            <div class="lname">Portfolio Construction</div>
+            <div class="ldesc">Signals + risk → holdings</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Mean-Variance Optimiser</div>
+            <div class="mod-desc">cvxpy. Costs penalty, position limits, sector neutrality, turnover cap. Long-only baseline.</div>
+            <div class="mod-meta">FYP-MOD-5</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Long-Short / 130-30 Variant</div>
+            <div class="mod-desc">Activate shorting, leverage budget, gross/net constraints. Doubles breadth.</div>
+            <div class="mod-meta">post-FYP extension</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Black-Litterman Views</div>
+            <div class="mod-desc">Bayesian view incorporation: macro overlays as prior tilts on equilibrium returns.</div>
+            <div class="mod-meta">links to Layer 5</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Risk-Parity Sleeve</div>
+            <div class="mod-desc">Equal risk contribution across asset classes. Multi-asset extension.</div>
+            <div class="mod-meta">multi-asset arm only</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Hierarchical Risk Parity</div>
+            <div class="mod-desc">Lopez de Prado's clustering-based allocator. Robust to covariance noise.</div>
+            <div class="mod-meta">if MVO unstable at scale</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 8: Alpha Combination -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">08</div>
+            <div class="lname">Alpha Combination</div>
+            <div class="ldesc">Many signals → one expected return</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Linear Z-Score Blend</div>
+            <div class="mod-desc">Equal-weighted sum of factor z-scores. Robust baseline. Hard to beat at small N.</div>
+            <div class="mod-meta">FYP default</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Regime-Conditional Weights</div>
+            <div class="mod-desc">HMM smoothed probs (Layer 5) modulate factor weights. State-conditional Sharpe.</div>
+            <div class="mod-meta">FYP stretch</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">XGBoost Residual Model</div>
+            <div class="mod-desc">Non-linear interactions on Layer 4 residuals. SHAP for interpretability. Honest comparison.</div>
+            <div class="mod-meta">FYP-MOD-4</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Deep IPCA / Autoencoder</div>
+            <div class="mod-desc">Kelly et al style instrumented PCA. Latent factor extraction with characteristics as instruments.</div>
+            <div class="mod-meta">requires N >> 75</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Reinforcement Learning</div>
+            <div class="mod-desc">PPO / DQN on portfolio construction. Mostly hype at small N; revisit at scale.</div>
+            <div class="mod-meta">probably never</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 7: Macro Overlays -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">07</div>
+            <div class="lname">Macro Overlays</div>
+            <div class="ldesc">Cross-asset & state-conditional</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">HMM Regime Detection</div>
+            <div class="mod-desc">2-3 state Gaussian HMM on macro features. Smoothed regime probabilities.</div>
+            <div class="mod-meta">FYP-MOD-3</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Local Projections (Jordà)</div>
+            <div class="mod-desc">Identified shock IRFs on PFI, investment, equity returns. Direct from independent macro research Notebook 6.</div>
+            <div class="mod-meta">your independent macro research work, packaged</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">VAR / VECM Forecasts</div>
+            <div class="mod-desc">Reduced-form macro forecasting layer. Append shock variables; compare RMSE/MAE.</div>
+            <div class="mod-meta">your independent macro research work</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">VRP / Vol Risk Premium</div>
+            <div class="mod-desc">Implied minus realised variance. Multi-asset CHF / Gold / SGD as currency overlay.</div>
+            <div class="mod-meta">your WorldQuant work</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">IO-Table Sector Linkages</div>
+            <div class="mod-desc">Singapore IO Type I/II Leontief. Sector shock propagation prior. Slow-moving (3yr lag).</div>
+            <div class="mod-meta">narrative only, not factor</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 6: Risk Model -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">06</div>
+            <div class="lname">Risk Model</div>
+            <div class="ldesc">Σ = B F̂ Bᵀ + Δ</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">BARRA-Style Fundamental</div>
+            <div class="mod-desc">Cross-sectional WLS for factor returns. EWMA covariance, half-life 24m. Bias-stat validated.</div>
+            <div class="mod-meta">FYP-MOD-2</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Specific Risk + Shrinkage</div>
+            <div class="mod-desc">Stock-level idiosyncratic var. Bayesian shrinkage to sector mean. Ledoit-Wolf reference.</div>
+            <div class="mod-meta">FYP-MOD-2</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Stochastic Vol (Heston)</div>
+            <div class="mod-desc">Time-varying variance, leverage effect via ρ. Useful when adding options.</div>
+            <div class="mod-meta">links to Layer 7</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">GARCH Family</div>
+            <div class="mod-desc">EGARCH, GJR-GARCH for vol forecasts. Asymmetric, fat-tailed innovations.</div>
+            <div class="mod-meta">vol forecast arm</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Statistical Factors (PCA)</div>
+            <div class="mod-desc">Pure-stat factor model fallback. Useful when fundamental coverage thin.</div>
+            <div class="mod-meta">EM/frontier markets only</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 5: Alpha Signals (Factor Zoo) -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">05</div>
+            <div class="lname">Alpha Signals</div>
+            <div class="ldesc">Factor zoo · classical & alt</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Value Cluster</div>
+            <div class="mod-desc">B/M, E/P, S/P, EBITDA/EV, FCF/EV. Z-scored, winsorised, sector-neutral variant.</div>
+            <div class="mod-meta">FYP-MOD-1 · CapIQ pipeline</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Momentum Cluster</div>
+            <div class="mod-desc">12-1m, 6-1m. Risk-adjusted variants. Industry-neutral residual momentum.</div>
+            <div class="mod-meta">FYP-MOD-1</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Quality Cluster</div>
+            <div class="mod-desc">ROE, gross profitability (Novy-Marx), accruals (Sloan). QMJ-style composite.</div>
+            <div class="mod-meta">FYP-MOD-1</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Low-Vol & Liquidity</div>
+            <div class="mod-desc">Realised vol, beta, Amihud illiquidity. BAB-style construction. Size as control.</div>
+            <div class="mod-meta">FYP-MOD-1</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Statistical Arbitrage / Pairs</div>
+            <div class="mod-desc">Cointegration on STI sector subsets. Mean-reversion overlay. Independent alpha source.</div>
+            <div class="mod-meta">post-FYP extension</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Earnings & Event Drift</div>
+            <div class="mod-desc">PEAD, revisions momentum, surprise z-scores. Event-driven layer.</div>
+            <div class="mod-meta">requires earnings calendar feed</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Alt-Data: Insider, Short Int, Sentiment</div>
+            <div class="mod-desc">SGXNet insider scrapes, short interest disclosures, news sentiment via FinBERT.</div>
+            <div class="mod-meta">manual scraping required</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Options-Implied Signals</div>
+            <div class="mod-desc">Skew, term structure, put/call. Forward-looking info BARRA can't capture.</div>
+            <div class="mod-meta">SGX options sparse; US first</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 4: Cross-Sectional Engine -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">04</div>
+            <div class="lname">Cross-Sectional Engine</div>
+            <div class="ldesc">FM, sorts, residualisation</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Fama-MacBeth (NW)</div>
+            <div class="mod-desc">Two-pass with Newey-West (6 lags). Bonferroni / HLZ multiple-testing. Shanken correction.</div>
+            <div class="mod-meta">FYP-MOD-1</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Univariate Sorts (Quintile)</div>
+            <div class="mod-desc">Long-short top minus bottom quintile. Robust to monotonicity assumption.</div>
+            <div class="mod-meta">classical sanity check</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Double-Sort & Independent Sorts</div>
+            <div class="mod-desc">Fama-French style 2x3, 5x5. Disentangle factor interactions.</div>
+            <div class="mod-meta">when factor count > 4</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">GMM Asset Pricing</div>
+            <div class="mod-desc">Hansen-Singleton GMM. Stochastic discount factor estimation. Joint hypothesis tests.</div>
+            <div class="mod-meta">academic rigor flex</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 3: Universe & Calendar -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">03</div>
+            <div class="lname">Universe & Calendar</div>
+            <div class="ldesc">PIT membership · cal handling</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">SGX Universe (STI + Mid Cap)</div>
+            <div class="mod-desc">PIT constituent reconstruction. Survivorship-bias-free. Delisting handling.</div>
+            <div class="mod-meta">FYP reference impl</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Universe ABC Interface</div>
+            <div class="mod-desc">Abstract base class. SGX, US, EU adapters. Get_constituents, get_returns, get_fundamentals.</div>
+            <div class="mod-meta">portability foundation</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">US Universe (S&P 500)</div>
+            <div class="mod-desc">Yahoo Finance free adapter. Demo portability. Hedge fund interview signal.</div>
+            <div class="mod-meta">post-FYP, 2 weeks</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">EU / Asia ex-Japan / EM</div>
+            <div class="mod-desc">STOXX 600, MSCI AC Asia, frontier EM. Each is its own data project.</div>
+            <div class="mod-meta">~2mo per universe</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 2: Data Layer -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">02</div>
+            <div class="lname">Data Pipeline</div>
+            <div class="ldesc">Ingest · clean · panel-ise</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Bloomberg / CapIQ Bridge</div>
+            <div class="mod-desc">BDH calls, CapIQ Excel + Python. Monthly panel: prices, fundamentals, sectors.</div>
+            <div class="mod-meta">your existing pipeline</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Macro Feed (a licensed market-data vendor)</div>
+            <div class="mod-desc">a licensed market-data vendor via Excel + Python. MAS rates, FX, ACWI, VIX, commodities.</div>
+            <div class="mod-meta">your independent macro research bridge</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Data Quality Tests</div>
+            <div class="mod-desc">Stale prices, return outliers, fundamental sanity. CI-gated. Pytest hypothesis.</div>
+            <div class="mod-meta">non-negotiable</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">Alt-Data Ingestion</div>
+            <div class="mod-desc">SGXNet scraper, news, Google Trends, sentiment. Incremental storage.</div>
+            <div class="mod-meta">when alpha-decay matters</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">Tick Data Store</div>
+            <div class="mod-desc">Order book, trades, microstructure features. Required for execution alpha arm.</div>
+            <div class="mod-meta">storage cost prohibitive</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 1: Infrastructure -->
+      <div class="layer">
+        <div class="layer-side">
+          <div>
+            <div class="lnum">01</div>
+            <div class="lname">Infrastructure</div>
+            <div class="ldesc">Code · CI · reproducibility</div>
+          </div>
+        </div>
+        <div class="layer-modules">
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Python Monorepo (sti-alpha)</div>
+            <div class="mod-desc">Poetry, pyproject, src layout. PyCharm core + Jupyter for viz only.</div>
+            <div class="mod-meta">your convention</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">Pytest + GitHub Actions</div>
+            <div class="mod-desc">CI on every push, coverage > 80%. Hypothesis property tests on numerics.</div>
+            <div class="mod-meta">non-negotiable</div>
+          </div>
+          <div class="mod active-mvp">
+            <span class="mod-tag mvp">MVP</span>
+            <div class="mod-name">YAML Config Layer</div>
+            <div class="mod-desc">configs/sgx_full.yaml, us_demo.yaml. Universe + factor + portfolio in one file.</div>
+            <div class="mod-meta">reproducibility</div>
+          </div>
+          <div class="mod future">
+            <span class="mod-tag future">PHASE 2</span>
+            <div class="mod-name">MLflow / Experiment Tracking</div>
+            <div class="mod-desc">Param hashing, run versioning, results comparison. Required as experiments scale.</div>
+            <div class="mod-meta">when N_runs > 50</div>
+          </div>
+          <div class="mod research">
+            <span class="mod-tag research">FUTURE</span>
+            <div class="mod-name">C++ Numerics / Cython Hot Paths</div>
+            <div class="mod-desc">Optimiser inner loops, covariance estimation. Speed when SGX → Russell 3000.</div>
+            <div class="mod-meta">premature for now</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───────── 2. DATA FLOW DIAGRAM ───────── -->
+  <section class="section">
+    <div class="section-num">02 · DATA FLOW</div>
+    <h2>How Layers <em>Talk</em></h2>
+    <p class="lead">The arrows are the contracts. Every layer hands the next a typed object: a panel, a matrix, a probability vector. Get the contracts right and the modules become Lego.</p>
+
+    <div class="flow">
+      <svg viewBox="0 0 1100 580" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0a1628"/>
+          </marker>
+          <marker id="arr-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#1b7f79"/>
+          </marker>
+          <marker id="arr-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#d97a2c"/>
+          </marker>
+        </defs>
+
+        <!-- Background grid -->
+        <g opacity="0.06">
+          <line x1="0" y1="100" x2="1100" y2="100" stroke="#0a1628"/>
+          <line x1="0" y1="200" x2="1100" y2="200" stroke="#0a1628"/>
+          <line x1="0" y1="300" x2="1100" y2="300" stroke="#0a1628"/>
+          <line x1="0" y1="400" x2="1100" y2="400" stroke="#0a1628"/>
+        </g>
+
+        <!-- Data sources -->
+        <g>
+          <rect x="20" y="40" width="170" height="60" fill="#fff" stroke="#0a1628" stroke-width="1.5"/>
+          <text x="105" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">Bloomberg / CapIQ</text>
+          <text x="105" y="84" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">prices, fundamentals</text>
+        </g>
+        <g>
+          <rect x="20" y="120" width="170" height="60" fill="#fff" stroke="#0a1628" stroke-width="1.5"/>
+          <text x="105" y="145" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">a licensed market-data vendor a licensed market-data vendor</text>
+          <text x="105" y="164" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">macro, FX, rates</text>
+        </g>
+        <g>
+          <rect x="20" y="200" width="170" height="60" fill="#fff" stroke="#0a1628" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="105" y="225" text-anchor="middle" font-size="13" font-weight="700" fill="#6b7280">Alt Data (P2)</text>
+          <text x="105" y="244" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="JetBrains Mono">SGXNet, news, sentiment</text>
+        </g>
+
+        <!-- Universe -->
+        <g>
+          <rect x="240" y="80" width="170" height="140" fill="#0a1628" stroke="#0a1628" stroke-width="1.5"/>
+          <text x="325" y="115" text-anchor="middle" font-size="14" font-weight="700" fill="#f4f1e8">Universe</text>
+          <text x="325" y="135" text-anchor="middle" font-size="11" fill="#1b7f79" font-family="JetBrains Mono">ABC interface</text>
+          <line x1="260" y1="150" x2="390" y2="150" stroke="#1b7f79" stroke-width="0.8" opacity="0.5"/>
+          <text x="325" y="170" text-anchor="middle" font-size="10.5" fill="#f4f1e8" font-family="JetBrains Mono">get_constituents(t)</text>
+          <text x="325" y="186" text-anchor="middle" font-size="10.5" fill="#f4f1e8" font-family="JetBrains Mono">get_returns()</text>
+          <text x="325" y="202" text-anchor="middle" font-size="10.5" fill="#f4f1e8" font-family="JetBrains Mono">get_fundamentals()</text>
+        </g>
+
+        <!-- Factor Engine -->
+        <g>
+          <rect x="460" y="60" width="170" height="80" fill="#fff" stroke="#1b7f79" stroke-width="2"/>
+          <text x="545" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">Factor Builder</text>
+          <text x="545" y="104" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 5</text>
+          <text x="545" y="122" text-anchor="middle" font-size="10" fill="#1b7f79" font-family="JetBrains Mono" font-weight="700">→ exposures B (N×K)</text>
+        </g>
+
+        <!-- FM regression -->
+        <g>
+          <rect x="680" y="60" width="170" height="80" fill="#fff" stroke="#1b7f79" stroke-width="2"/>
+          <text x="765" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">Fama-MacBeth</text>
+          <text x="765" y="104" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 4</text>
+          <text x="765" y="122" text-anchor="middle" font-size="10" fill="#1b7f79" font-family="JetBrains Mono" font-weight="700">→ factor returns f_t</text>
+        </g>
+
+        <!-- Risk Model -->
+        <g>
+          <rect x="900" y="60" width="170" height="80" fill="#fff" stroke="#1b7f79" stroke-width="2"/>
+          <text x="985" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">Risk Model</text>
+          <text x="985" y="104" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 6</text>
+          <text x="985" y="122" text-anchor="middle" font-size="10" fill="#1b7f79" font-family="JetBrains Mono" font-weight="700">→ Σ = BFB' + Δ</text>
+        </g>
+
+        <!-- HMM regime -->
+        <g>
+          <rect x="460" y="180" width="170" height="80" fill="#fff" stroke="#d97a2c" stroke-width="2"/>
+          <text x="545" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">HMM Regime</text>
+          <text x="545" y="224" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 7</text>
+          <text x="545" y="242" text-anchor="middle" font-size="10" fill="#d97a2c" font-family="JetBrains Mono" font-weight="700">→ π_t (regime probs)</text>
+        </g>
+
+        <!-- Macro shocks -->
+        <g>
+          <rect x="240" y="280" width="170" height="80" fill="#fff" stroke="#d97a2c" stroke-width="2" stroke-dasharray="3,3"/>
+          <text x="325" y="305" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">Local Projections</text>
+          <text x="325" y="324" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 7 · Phase 2</text>
+          <text x="325" y="342" text-anchor="middle" font-size="10" fill="#d97a2c" font-family="JetBrains Mono" font-weight="700">→ shock IRFs</text>
+        </g>
+
+        <!-- ML Residuals -->
+        <g>
+          <rect x="680" y="180" width="170" height="80" fill="#fff" stroke="#d97a2c" stroke-width="2"/>
+          <text x="765" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">XGBoost Residual</text>
+          <text x="765" y="224" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 8</text>
+          <text x="765" y="242" text-anchor="middle" font-size="10" fill="#d97a2c" font-family="JetBrains Mono" font-weight="700">→ non-linear α adj</text>
+        </g>
+
+        <!-- Alpha Combiner -->
+        <g>
+          <rect x="900" y="180" width="170" height="80" fill="#fff" stroke="#1b7f79" stroke-width="2"/>
+          <text x="985" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">Alpha Combiner</text>
+          <text x="985" y="224" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 8</text>
+          <text x="985" y="242" text-anchor="middle" font-size="10" fill="#1b7f79" font-family="JetBrains Mono" font-weight="700">→ α (N × 1)</text>
+        </g>
+
+        <!-- Optimiser -->
+        <g>
+          <rect x="900" y="300" width="170" height="80" fill="#0a1628" stroke="#0a1628" stroke-width="2"/>
+          <text x="985" y="325" text-anchor="middle" font-size="13" font-weight="700" fill="#f4f1e8">Optimiser</text>
+          <text x="985" y="344" text-anchor="middle" font-size="10.5" fill="#9ca3af" font-family="JetBrains Mono">Layer 9 · MVO</text>
+          <text x="985" y="362" text-anchor="middle" font-size="10" fill="#1b7f79" font-family="JetBrains Mono" font-weight="700">→ holdings h*</text>
+        </g>
+
+        <!-- Backtester -->
+        <g>
+          <rect x="680" y="420" width="170" height="80" fill="#fff" stroke="#0a1628" stroke-width="2"/>
+          <text x="765" y="445" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">Backtester</text>
+          <text x="765" y="464" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 10</text>
+          <text x="765" y="482" text-anchor="middle" font-size="10" fill="#0a1628" font-family="JetBrains Mono" font-weight="700">→ P&L, turnover</text>
+        </g>
+
+        <!-- Attribution -->
+        <g>
+          <rect x="460" y="420" width="170" height="80" fill="#fff" stroke="#0a1628" stroke-width="2"/>
+          <text x="545" y="445" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">Attribution</text>
+          <text x="545" y="464" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 11</text>
+          <text x="545" y="482" text-anchor="middle" font-size="10" fill="#0a1628" font-family="JetBrains Mono" font-weight="700">→ Brinson + factor</text>
+        </g>
+
+        <!-- Reporting -->
+        <g>
+          <rect x="240" y="420" width="170" height="80" fill="#fff" stroke="#0a1628" stroke-width="1.5"/>
+          <text x="325" y="445" text-anchor="middle" font-size="13" font-weight="700" fill="#0a1628">LP Tearsheet</text>
+          <text x="325" y="464" text-anchor="middle" font-size="10.5" fill="#6b7280" font-family="JetBrains Mono">Layer 11</text>
+          <text x="325" y="482" text-anchor="middle" font-size="10" fill="#0a1628" font-family="JetBrains Mono" font-weight="700">→ PDF, dashboard</text>
+        </g>
+
+        <!-- Arrows: data sources → universe -->
+        <line x1="190" y1="70" x2="237" y2="120" stroke="#0a1628" stroke-width="1.3" marker-end="url(#arr)"/>
+        <line x1="190" y1="150" x2="237" y2="150" stroke="#0a1628" stroke-width="1.3" marker-end="url(#arr)"/>
+        <line x1="190" y1="230" x2="237" y2="180" stroke="#0a1628" stroke-width="1.3" marker-end="url(#arr)" stroke-dasharray="3,3" opacity="0.6"/>
+
+        <!-- Universe → factor builder -->
+        <line x1="410" y1="120" x2="457" y2="100" stroke="#1b7f79" stroke-width="1.6" marker-end="url(#arr-teal)"/>
+        <!-- Universe → HMM (returns/macro) -->
+        <line x1="410" y1="170" x2="457" y2="220" stroke="#d97a2c" stroke-width="1.6" marker-end="url(#arr-amber)"/>
+        <!-- Universe → LP -->
+        <line x1="410" y1="180" x2="457" y2="320" stroke="#d97a2c" stroke-width="1.6" marker-end="url(#arr-amber)" stroke-dasharray="3,3" opacity="0.6"/>
+
+        <!-- Factor → FM -->
+        <line x1="630" y1="100" x2="677" y2="100" stroke="#1b7f79" stroke-width="1.6" marker-end="url(#arr-teal)"/>
+        <!-- FM → Risk -->
+        <line x1="850" y1="100" x2="897" y2="100" stroke="#1b7f79" stroke-width="1.6" marker-end="url(#arr-teal)"/>
+
+        <!-- Factor + FM → ML residual -->
+        <path d="M 630 110 Q 660 145 677 220" stroke="#d97a2c" stroke-width="1.6" fill="none" marker-end="url(#arr-amber)"/>
+
+        <!-- HMM → combiner -->
+        <line x1="630" y1="220" x2="897" y2="220" stroke="#d97a2c" stroke-width="1.6" marker-end="url(#arr-amber)"/>
+        <!-- ML → combiner -->
+        <line x1="850" y1="220" x2="897" y2="220" stroke="#d97a2c" stroke-width="1.6" marker-end="url(#arr-amber)"/>
+        <!-- Factor → combiner -->
+        <path d="M 545 140 Q 720 165 985 178" stroke="#1b7f79" stroke-width="1.6" fill="none" marker-end="url(#arr-teal)"/>
+
+        <!-- Local projections feeds HMM features -->
+        <line x1="410" y1="320" x2="500" y2="262" stroke="#d97a2c" stroke-width="1.3" marker-end="url(#arr-amber)" stroke-dasharray="3,3" opacity="0.7"/>
+
+        <!-- Risk → optimiser -->
+        <line x1="985" y1="140" x2="985" y2="297" stroke="#1b7f79" stroke-width="1.6" marker-end="url(#arr-teal)"/>
+        <!-- α → optimiser -->
+        <line x1="985" y1="260" x2="985" y2="297" stroke="#1b7f79" stroke-width="1.6" marker-end="url(#arr-teal)"/>
+
+        <!-- Optimiser → backtester -->
+        <line x1="900" y1="360" x2="853" y2="445" stroke="#0a1628" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- Backtester → attribution -->
+        <line x1="680" y1="460" x2="633" y2="460" stroke="#0a1628" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- Attribution → LP -->
+        <line x1="460" y1="460" x2="413" y2="460" stroke="#0a1628" stroke-width="1.6" marker-end="url(#arr)"/>
+
+        <!-- Live execution dotted from optimiser -->
+        <path d="M 985 380 Q 1000 480 870 485" stroke="#a83232" stroke-width="1.4" fill="none" marker-end="url(#arr)" stroke-dasharray="4,3" opacity="0.7"/>
+        <text x="1015" y="445" font-size="10" font-family="JetBrains Mono" fill="#a83232" font-weight="700" transform="rotate(-90 1015 445)">IBKR</text>
+
+        <!-- Title -->
+        <text x="20" y="555" font-size="11" fill="#6b7280" font-family="JetBrains Mono">SOLID = MVP / FYP    DASHED = PHASE 2     RED = LIVE TRADING PATH</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ───────── 3. CROSS-LAYER LINKAGES ───────── -->
+  <section class="section">
+    <div class="section-num">03 · CROSS-LAYER LINKAGES</div>
+    <h2>Where Modules <em>Meet</em></h2>
+    <p class="lead">The non-obvious connections — where Module A's output is what Module B needs, often across non-adjacent layers. These are the contracts you must lock down first.</p>
+
+    <div class="links">
+      <table>
+        <thead><tr>
+          <th style="width:18%">From</th>
+          <th style="width:18%">To</th>
+          <th style="width:24%">Interface (the contract)</th>
+          <th style="width:40%">Why this linkage matters</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="from">Universe (L3)</td>
+            <td class="to">Factor Builder (L5)</td>
+            <td class="via">DataFrame[N×T] returns, fundamentals</td>
+            <td class="purpose">All factors require PIT exposures. If universe leaks future info, every downstream factor inherits the bias. Lock this contract first; everything else collapses without it.</td>
+          </tr>
+          <tr>
+            <td class="from">Factor Builder (L5)</td>
+            <td class="to">Risk Model (L6)</td>
+            <td class="via">B (N×K) exposures matrix</td>
+            <td class="purpose">BARRA risk model uses the same exposures as alpha factors. Don't build two pipelines — one B matrix, two consumers. This is the single biggest architectural decision.</td>
+          </tr>
+          <tr>
+            <td class="from">Macro Feed (L2)</td>
+            <td class="to">HMM Regime (L7)</td>
+            <td class="via">DataFrame[T×F] macro features</td>
+            <td class="purpose">SGD-USD vol, MAS slope, ACWI ret, VIX, DXY, Brent. Same panel feeds local projections (Phase 2). One macro panel, multiple consumers.</td>
+          </tr>
+          <tr>
+            <td class="from">HMM Regime (L7)</td>
+            <td class="to">Alpha Combiner (L8)</td>
+            <td class="via">np.array[T×K_states] smoothed probs</td>
+            <td class="purpose">Regime probabilities modulate factor weights. Don't hard-code regimes; use posterior probs as continuous tilts so model failure is graceful.</td>
+          </tr>
+          <tr>
+            <td class="from">FM Engine (L4)</td>
+            <td class="to">XGBoost Residual (L8)</td>
+            <td class="via">Series[N×T] residuals + B</td>
+            <td class="purpose">ML model fits residuals from linear FM, not raw returns. This is the difference between honest residual modelling and reinventing the linear factor model with a fancy name.</td>
+          </tr>
+          <tr>
+            <td class="from">Alpha Combiner (L8)</td>
+            <td class="to">Optimiser (L9)</td>
+            <td class="via">α: np.array[N], Σ: np.array[N×N]</td>
+            <td class="purpose">Two inputs only — expected returns and covariance. If your optimiser needs more than this, you've leaked structure that should live one layer up.</td>
+          </tr>
+          <tr>
+            <td class="from">Optimiser (L9)</td>
+            <td class="to">Cost Model (L10)</td>
+            <td class="via">target h*, current h, ADV</td>
+            <td class="purpose">Almgren-Chriss cost is f(trade size, ADV). Cost feeds back into the optimiser as penalty term — circular dependency that converges via SLSQP / OSQP.</td>
+          </tr>
+          <tr>
+            <td class="from">Backtester (L10)</td>
+            <td class="to">Attribution (L11)</td>
+            <td class="via">Holdings panel, daily returns</td>
+            <td class="purpose">Brinson needs benchmark weights at each rebal date — keep this in the Universe abstraction so swapping benchmarks doesn't touch attribution code.</td>
+          </tr>
+          <tr>
+            <td class="from">Risk Model (L6)</td>
+            <td class="to">Attribution (L11)</td>
+            <td class="via">B, F, factor returns f_t</td>
+            <td class="purpose">Factor-based attribution decomposes returns into factor contributions. Same risk model, two uses (forward: portfolio construction; backward: explain returns).</td>
+          </tr>
+          <tr>
+            <td class="from">Local Projections (L7)</td>
+            <td class="to">Black-Litterman Views (L9)</td>
+            <td class="via">View vector P, Ω uncertainty</td>
+            <td class="purpose">Phase 2: Identified macro shocks become Bayesian views. Your independent macro research shock-identification work plugs directly here as the view-generator.</td>
+          </tr>
+          <tr>
+            <td class="from">VRP / Options (L7)</td>
+            <td class="to">Stochastic Vol Risk (L6)</td>
+            <td class="via">Implied vol surface, σ_implied</td>
+            <td class="purpose">Future: Heston-calibrated implied vol enters the risk model as forward-looking covariance estimate. Marries your WorldQuant VRP work to the equity book.</td>
+          </tr>
+          <tr>
+            <td class="from">Stat-Arb / Pairs (L5)</td>
+            <td class="to">Alpha Combiner (L8)</td>
+            <td class="via">Independent α stream</td>
+            <td class="purpose">Phase 2: pairs is a separate alpha source. Combine via diversification weight, not summation — uncorrelated alpha is the real prize.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ───────── 4. PHASES / TIMELINE ───────── -->
+  <section class="section">
+    <div class="section-num">04 · BUILD PHASES</div>
+    <h2>What Ships <em>When</em></h2>
+    <p class="lead">Three phases. Each phase delivers a usable system. Don't start phase N+1 until phase N is profitable, validated, and operationally boring.</p>
+
+    <div class="timeline">
+      <div class="phase now">
+        <div class="phase-tag">PHASE 1</div>
+        <div class="phase-yr">2026<br>—<br>2027</div>
+        <div class="phase-name">FYP / MVP</div>
+        <ul class="phase-list">
+          <li>Universe ABC + SGX adapter</li>
+          <li>Factor zoo (4 clusters)</li>
+          <li>Fama-MacBeth with NW</li>
+          <li>BARRA-style risk model</li>
+          <li>HMM regime overlay (lite)</li>
+          <li>MVO + Brinson attribution</li>
+          <li>IBKR paper trading OOS</li>
+          <li>FYP report + SSRN preprint</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-tag">PHASE 2A</div>
+        <div class="phase-yr">2027<br>—<br>2028</div>
+        <div class="phase-name">Hardening</div>
+        <ul class="phase-list">
+          <li>US adapter (S&P 500, Yahoo)</li>
+          <li>Almgren-Chriss costs + capacity</li>
+          <li>XGBoost residual model</li>
+          <li>Long-short / 130-30 variant</li>
+          <li>Stat-arb pairs overlay</li>
+          <li>Alt-data: SGXNet, sentiment</li>
+          <li>Black-Litterman view layer</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-tag">PHASE 2B</div>
+        <div class="phase-yr">2028<br>—<br>2029</div>
+        <div class="phase-name">Multi-Asset</div>
+        <ul class="phase-list">
+          <li>Asia ex-Japan universe</li>
+          <li>EU adapter (STOXX 600)</li>
+          <li>Local projections (independent macro research)</li>
+          <li>VAR/VECM macro forecasts</li>
+          <li>VRP overlay (WorldQuant)</li>
+          <li>GARCH vol forecasts</li>
+          <li>Risk-parity sleeve</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-tag">PHASE 3A</div>
+        <div class="phase-yr">2029<br>—<br>2031</div>
+        <div class="phase-name">Derivatives</div>
+        <ul class="phase-list">
+          <li>Options-implied signals</li>
+          <li>Heston stochastic vol model</li>
+          <li>Vol surface calibration</li>
+          <li>VRP harvester (live)</li>
+          <li>Tail-hedge overlay</li>
+          <li>Earnings event drift</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-tag">PHASE 3B</div>
+        <div class="phase-yr">2031<br>+</div>
+        <div class="phase-name">Execution Alpha</div>
+        <ul class="phase-list">
+          <li>C++ MM engine production</li>
+          <li>Tick data store</li>
+          <li>VWAP/TWAP smart routing</li>
+          <li>Microstructure signals</li>
+          <li>Multi-strategy fund structure</li>
+          <li>External LP capital</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── 5. DECISION GATES ───────── -->
+  <section class="section">
+    <div class="section-num">05 · DECISION GATES</div>
+    <h2>Don't Cross Without <em>Earning</em> It</h2>
+    <p class="lead">Five gates that determine whether you're allowed to expand. Each one is binary. If the test fails, you go back and fix Phase N before touching Phase N+1.</p>
+
+    <div class="gates">
+      <div class="gate">
+        <div class="gate-num">G1</div>
+        <div class="gate-trigger">FYP Submitted, Bias Stat ∈ [0.85, 1.15]</div>
+        <div class="gate-q">Does the risk model actually forecast volatility correctly out-of-sample? If not, you have no foundation for portfolio construction.</div>
+        <div class="gate-action">UNLOCK → Phase 2A</div>
+      </div>
+      <div class="gate">
+        <div class="gate-num">G2</div>
+        <div class="gate-trigger">6 Months Live OOS, Sharpe > Benchmark</div>
+        <div class="gate-q">Does the strategy work in real life on real money? Paper trading via IBKR. If sim ≠ live, find out why.</div>
+        <div class="gate-action">UNLOCK → US universe</div>
+      </div>
+      <div class="gate">
+        <div class="gate-num">G3</div>
+        <div class="gate-trigger">First Outside Capital ($100k+)</div>
+        <div class="gate-q">Have you taken external capital, even a friends-and-family round, and run it for a year without a fraud / operational incident?</div>
+        <div class="gate-action">UNLOCK → Multi-asset</div>
+      </div>
+      <div class="gate">
+        <div class="gate-num">G4</div>
+        <div class="gate-trigger">$10m AUM, Audited Track Record</div>
+        <div class="gate-q">Audited GIPS-compliant performance, real LP letter cadence, regulatory licence. If you can't run $10m operationally, stop.</div>
+        <div class="gate-action">UNLOCK → Derivatives</div>
+      </div>
+      <div class="gate">
+        <div class="gate-num">G5</div>
+        <div class="gate-trigger">Capacity Saturated on Equities</div>
+        <div class="gate-q">Has the equities arm hit its capacity ceiling such that you genuinely need a second alpha stream? If not, don't diversify — concentrate.</div>
+        <div class="gate-action">UNLOCK → Execution alpha</div>
+      </div>
+      <div class="gate">
+        <div class="gate-num">∅</div>
+        <div class="gate-trigger">Failure Mode</div>
+        <div class="gate-q">If any gate fails, the answer is not "skip ahead." It's "fix the failed component or kill the arm." Founder discipline is the rarest input.</div>
+        <div class="gate-action">RETURN → previous phase</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── FOOTER ───────── -->
+  <footer class="ftr">
+    <div>
+      <h4>What this document is</h4>
+      <p>An architecture map for a multi-decade quant research and asset management vision. Phase 1 is the FYP. Everything else is real-but-distant: useful for design decisions today, but not commitments to ship.</p>
+    </div>
+    <div>
+      <h4>What it isn't</h4>
+      <p>A scope document for the FYP. Patricia Wong's brief is much narrower. This is the version-of-you-at-35's blueprint, not the version-of-you-at-25's deliverable. Do not show this to her.</p>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
