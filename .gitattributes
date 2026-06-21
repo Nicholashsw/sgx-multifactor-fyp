@@ -1,3 +1,5 @@
 *.html linguist-documentation
 *.html linguist-detectable=false
+*.bas linguist-detectable=false
 figs/* linguist-documentation
+reports/* linguist-documentation
