@@ -1,0 +1,5 @@
+Run,Ann_Return_%,Ann_Vol_%,Sharpe,Sortino,Max_DD_%,Calmar,Hit_%,N
+"A: Survivor-only (current 30, no PIT)  [LONG]",17.89,17.44,0.975,1.511,-46.84,0.382,66.0,238
+"B: Survivorship-free (71, PIT-filtered)[LONG]",11.48,19.48,0.607,0.69,-65.62,0.175,64.1,237
+A: Survivor-only                       [L/S],11.67,18.54,0.635,0.725,-39.75,0.294,63.7,237
+B: Survivorship-free                   [L/S],3.96,20.21,0.249,0.258,-77.82,0.051,59.6,235

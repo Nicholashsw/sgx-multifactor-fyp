@@ -1,0 +1,7 @@
+Metric,Survivorship-corrected,Biased (current-30)
+Universe coverage,53 of 54 tickers (~31/month),30 current survivors
+Equal-weight universe return,5.6%/yr,7.2%/yr
+  -> survivorship premium,,+1.6%/yr inflation
+Long-only ann return,12.4%,12.3%
+Long-only Sharpe,0.64,0.69
+Long-only alpha vs own EW,+0.55%/mo (t=2.84),+0.40%/mo (t=2.69)
