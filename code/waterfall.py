@@ -21,6 +21,7 @@ turns over monthly. "Traded" charges a half-spread only on the names actually bo
 and sold that month, so it follows each scheme's real turnover.
 
 Run: python waterfall.py
+     SGX_PANEL=exports/sg_broad_quarterly.csv python waterfall.py --spreads exports/cs_spreads_traded.csv
      python waterfall.py --spreads cs_spreads_traded.csv --out waterfall_schemes_traded_days.csv
 The default run uses the spreads the published waterfall used and also writes
 waterfall_definitive.csv (preset weights); --spreads swaps in another spread file
@@ -41,7 +42,8 @@ ap.add_argument("--out", default="waterfall_schemes.csv")
 args = ap.parse_args()
 
 MARKIT = "newz/npfsiwyafic9oihc.csv"
-FILES = ["sg_broad_quarterly.csv", "World_Index_Constituents.csv", "more/Monthly_World_Indices.csv",
+PANEL = os.environ.get("SGX_PANEL", "sg_broad_quarterly.csv")  # sql/build.py --export writes one
+FILES = [PANEL, "World_Index_Constituents.csv", "more/Monthly_World_Indices.csv",
          "crosswalk_secid_isin_sedol.csv", args.spreads, MARKIT]
 START = pd.Timestamp("2003-01-01")
 
@@ -49,7 +51,7 @@ for f in FILES:
     if not os.path.exists(f):
         raise SystemExit(f"missing: {f}")
 
-q = pd.read_csv("sg_broad_quarterly.csv", parse_dates=["Date"]).sort_values(["SecID", "Date"])
+q = pd.read_csv(PANEL, parse_dates=["Date"]).sort_values(["SecID", "Date"])
 q["Ret"] = q["Return_1M"]
 xw = pd.read_csv("crosswalk_secid_isin_sedol.csv")
 cs = pd.read_csv(args.spreads, parse_dates=["Date"])

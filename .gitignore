@@ -14,3 +14,9 @@ fred_data/
 outputs/
 *.parquet
 sim/
+
+# SQL store (sql/): local config, database files and vendor-derived exports
+sql/sources.toml
+*.duckdb
+*.duckdb.wal
+exports/

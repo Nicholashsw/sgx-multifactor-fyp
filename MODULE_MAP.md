@@ -1,6 +1,6 @@
 # Module map
 
-How the ten source folders fold into one core narrative plus seven standalone modules. Conflicts resolved by the supersession map where it speaks, otherwise by executed evidence on the more authoritative universe (liquid100 / broad Compustat > PIT roster > 30-name STI).
+How the ten source folders fold into one core narrative plus seven standalone modules, with an eighth (the SQL rebuild) added on top of them. Conflicts resolved by the supersession map where it speaks, otherwise by executed evidence on the more authoritative universe (liquid100 / broad Compustat > PIT roster > 30-name STI).
 
 ## Core: the factor pipeline (one merged narrative)
 
@@ -42,6 +42,10 @@ Folder: SGX multi-factor trading strategy development. 52-week high vs momentum 
 ## Module 7. VBA / data tooling
 
 Folders: STI SGX2, SGX multi-factor FYP, consolidation audit. Bloomberg pull machinery (membership history via INDX_MWEIGHT_HIST with END_DATE_OVERRIDE, price panels, publication pulls), CapIQ module, daily OHLCV, diagnostic probes. Ships as code; no results of its own.
+
+## Module 8. SQL research store
+
+Folder: `sql/` (new; no source folder). The broad Compustat panel rebuilt from the raw vendor extracts in DuckDB SQL, so the canonical tables no longer depend on a panel assembled in notebooks outside the repository. Point-in-time rules are enforced by the schema (ASOF joins on the embargo date, a complete calendar grid for every window, calendar-joined forward returns never filtered by next-month membership) and checked by audits on every build. Tested against the project's pandas code on identical inputs: spreads, z-scores, composite, ICs and decile books agree to 1e-9 or better. The run on the licensed exports and the parity report against the legacy panel are pending, so it has no headline number yet.
 
 ## Cross-cutting: corrections log
 

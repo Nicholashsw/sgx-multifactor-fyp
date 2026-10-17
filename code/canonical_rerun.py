@@ -3,13 +3,14 @@ Canonical re-run for the broad-universe paper. Single source of truth.
 Requires: sg_broad_quarterly.csv (P-Q panel), World_Index_Constituents.csv, Monthly_World_Indices.csv
 Produces every number in Tables 1-4 from ONE panel (P-Q, quarterly/TTM, 4-month lag).
 Run:  python3 canonical_rerun.py
+      SGX_PANEL=exports/sg_broad_quarterly.csv python3 canonical_rerun.py   # the SQL-built panel (sql/)
 """
 import warnings; warnings.filterwarnings("ignore")
 import pandas as pd, numpy as np, statsmodels.api as sm
 from scipy import stats
 import os, json
 
-PANEL='sg_broad_quarterly.csv'; CONST='World_Index_Constituents.csv'; BENCH='more/Monthly_World_Indices.csv'
+PANEL=os.environ.get('SGX_PANEL','sg_broad_quarterly.csv'); CONST='World_Index_Constituents.csv'; BENCH='more/Monthly_World_Indices.csv'
 for f in [PANEL,CONST,BENCH]:
     if not os.path.exists(f): raise SystemExit(f"MISSING: {f}")
 

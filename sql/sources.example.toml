@@ -1,0 +1,21 @@
+# Copy to sources.toml (git-ignored) and point at your own WRDS / vendor exports.
+# Paths are relative to `root`. Leave an optional export out, or set it to "", to skip it.
+
+root = "~/fyp-data"
+
+[files]
+# required
+secd         = "pyvzpcslf5l2s1kh.csv"           # comp_global_daily.g_secd, fic = SGP (the cs_spreads.py extract)
+funda        = "g_funda_sgp.csv"                # comp_global_daily.g_funda, fic = SGP
+constituents = "World_Index_Constituents.csv"   # June snapshots: gvkey, iid, JuneDate
+
+# optional
+fundq        = "g_fundq_sgp.csv"                # comp_global_daily.g_fundq, fic = SGP
+company      = "g_company_sgp.csv"              # gvkey, conm, dlrsn, dldte, prirow
+market       = "more/Monthly_World_Indices.csv" # WRDS world index returns (fic, date, mportret)
+markit       = "newz/npfsiwyafic9oihc.csv"      # Markit Securities Finance, equity Asia
+fx           = ""                               # month-end FX: date, curcd, sgd_per_unit
+
+[params]
+embargo_months = 4    # fundamentals usable this many month-ends after the period end
+stale_months   = 18   # a statement older than this at formation counts as missing

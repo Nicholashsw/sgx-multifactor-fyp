@@ -33,3 +33,5 @@ These headline numbers came from research notebooks that do not ship. Their resu
 - `attribution.py`: attribution and leakage framework on the 30-name Bloomberg STI panel. The panel holds current members only, so spreads, borrow and delisting effects cannot be computed on it.
 - `make_figures.py`: redraws the cost waterfall, the 65-test grid and the Table I chart from `results/verified/`. Needs no licensed data.
 - `FactorDataPull.bas`: Bloomberg VBA pulls for the 30-name workbook.
+
+`canonical_rerun.py` and `waterfall.py` read the panel named by `SGX_PANEL` when it is set, so they run unchanged on the panel `sql/build.py --export` rebuilds from the raw Compustat extracts (see `sql/README.md`).

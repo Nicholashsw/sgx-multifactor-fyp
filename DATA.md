@@ -55,6 +55,10 @@ CapIQ: designed integration, not used in any reported result. REALIS: 698,581 re
 | `results/verified/` | Ship. Aggregated result files matching VERIFICATION_LEDGER.md |
 | `figures/` | Ship. 200 dpi, produced by the verified notebooks |
 | All `.xlsm`/`.xlsx` vendor exports, raw panels (`panel_*`, `sg_broad_*`, `sgp_panel_*`, `membership_pit.csv`, spreads, Markit/SDC/IBES/JKP/CEIC extracts) | Never ship |
+| `sql/` DuckDB files (`*.duckdb`), `sql/sources.toml`, and anything `sql/build.py --export` writes (`exports/`) | Never ship; git-ignored |
+| `sql_out/`, the summaries `sql/report.py` and `sql/parity.py` write (test statistics, correlations, row counts) | May ship, like `results/verified/` |
+
+The SQL tests (`sql/tests/`) build a few thousand rows of made-up prices in a temporary folder each time they run, purely to exercise the queries; the rows are never written into the repository and no reported number comes from them.
 
 ## Reproduction
 

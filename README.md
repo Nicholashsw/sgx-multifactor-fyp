@@ -40,11 +40,12 @@ The answer: the Singapore market has real, correctly signed, replicable cross-se
 | [STRATEGY_FREEZE.md](STRATEGY_FREEZE.md) | The locked strategy, the numbers at the freeze, and what counts as robustness |
 | [VERIFICATION_LEDGER.md](VERIFICATION_LEDGER.md) | Claim-by-claim trace to executed evidence (VERIFIED / UNSUPPORTED / CONTAMINATED) |
 | [EXCLUSIONS.md](EXCLUSIONS.md) | Everything cut from the report, and why |
-| [MODULE_MAP.md](MODULE_MAP.md), `modules/` | How the research branches fit into one core result plus seven modules |
+| [MODULE_MAP.md](MODULE_MAP.md), `modules/` | How the research branches fit into one core result plus eight modules |
 | [DATA.md](DATA.md) | Sources, licensing and reproduction routes; no licensed data ships |
 | `figures/` | 46 figures at 200 dpi, all from real-data runs, indexed in [figures/README.md](figures/README.md); three are redrawn from shipped results by `code/make_figures.py` |
 | `code/` | Pipeline, factor model, backtest, point-in-time engines, canonical re-runs and sensitivity scripts; [code/README.md](code/README.md) maps each headline result to the script or result file behind it |
 | `src/` | VBA data layer: Bloomberg and CapIQ pulls, point-in-time index membership |
+| [`sql/`](sql/README.md) | Module 8: the broad panel rebuilt in SQL (DuckDB) from the raw Compustat extracts, with point-in-time joins, build audits, Tables 1 and 2, and a parity report against the legacy panel |
 | `results/verified/` | Result files behind the ledger |
 | `notebooks/` | Survivorship backtest; `backtest_survivorship_final.ipynb` is the canonical quarterly point-in-time run. It ships without cell outputs, because running it needs licensed Bloomberg/Compustat panels and saved outputs would contain vendor rows. Its numbers are in `results/verified/survivorship_summary_final.csv` (ledger B1, B9, B11). |
 
